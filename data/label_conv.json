@@ -1,0 +1,1 @@
+{"benign": 0, "dos-icmp": 1, "dos-mqtt-conn": 2, "dos-mqtt-malf": 3, "dos-mqtt-publ": 4, "dos-tcp": 5, "dos-tcp-syn": 6, "dos-udp": 7, "infog-scan-host": 8, "infog-scan-os": 9, "infog-scan-port": 10, "infog-scan-vuln": 11, "mitm-arpspoof": 12}

@@ -1,0 +1,25 @@
+# Core PyTorch & Scientific Computing Stack
+# Note for HPC container environments (e.g., Singularity/Apptainer with pre-installed PyTorch):
+# install with `pip install -r requirements.txt --constraint <(pip freeze)` to match container versions.
+torch>=1.12
+torchvision>=0.13
+numpy>=1.23
+pandas>=1.5
+scipy>=1.9
+scikit-learn>=1.1
+pyarrow>=11
+matplotlib>=3.6
+seaborn>=0.12
+Pillow>=9.0
+tqdm>=4.64
+ipykernel>=6.0
+GitPython>=3.1
+
+# Optional XAI & Visualization Dependencies (also listed separately in requirements-xai.txt)
+# Install with: pip install -r requirements-xai.txt
+# shap>=0.41
+# captum>=0.6.0
+# lime>=0.2.0.1
+# umap-learn>=0.5.4
+# tabulate>=0.9
+

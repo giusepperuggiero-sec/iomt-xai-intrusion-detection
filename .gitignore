@@ -1,0 +1,73 @@
+# Python bytecode, virtual environments, caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Environments, credentials, and tokens
+.env
+.env.*
+*.token
+
+# Heavy raw datasets and preprocessing caches (keep data/classes.txt & data/label_conv.json tracked)
+dataset/
+Dataset/
+prep_cache/
+data/**/*.parquet
+data/*.parquet
+*.parquet
+!data/classes.txt
+!data/label_conv.json
+/classes.txt
+/classes_bin.txt
+log_dump/
+
+# Experiment checkpoints, large numpy dumps, and raw training logs
+results/cic-iomt_scratch_*/
+results/**/*.ckpt
+results/**/*.pth
+results/**/*.parquet
+results/**/*.npy
+results/**/*.npz
+results/**/stdout*
+results/**/stderr*
+results/**/raw_log*
+results/**/args*
+results/**/train_*.log
+results/figures/*
+!results/figures/.gitkeep
+results/metrics/*
+!results/metrics/.gitkeep
+results/models/*
+!results/models/.gitkeep
+!results/final_experimental_report.md
+!**/.gitkeep
+*.ext3
+
+# Local paper/draft folders and agent artifacts
+documents/
+claude/
+.agents/
+.agetns/
+*.zip
+*.bundle
+
+# OS and IDE files
+.vscode/
+.idea/
+.history/
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
