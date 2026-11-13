@@ -53,7 +53,7 @@ while [ $# -gt 0 ]; do
         --epochs)      NEPOCHS="$2"; shift 2 ;;
         --dry-run)     DRY_RUN=1; shift ;;
         --workers)     NUM_WORKERS="$2"; shift 2 ;;
-        *)             echo "[ERRORE] Opzione sconosciuta: $1"; exit 1 ;;
+        *)             echo "[ERROR] Unknown option: $1"; exit 1 ;;
     esac
 done
 
@@ -70,8 +70,8 @@ run_single_model() {
 
     echo ""
     echo "======================================================================"
-    echo " AVVIO TRAINING BATCH JOB: ${NET_NAME} (Seed ${SEED}, T=${NUM_PKTS}, ${NEPOCHS} Epoche)"
-    echo " Inizio:   $(date '+%Y-%m-%d %H:%M:%S')"
+    echo " STARTING BATCH TRAINING: ${NET_NAME} (Seed ${SEED}, T=${NUM_PKTS}, ${NEPOCHS} Epochs)"
+    echo " Started:  $(date '+%Y-%m-%d %H:%M:%S')"
     echo " Log:      ${LOG_FILE}"
     echo "======================================================================"
 
@@ -99,9 +99,9 @@ run_single_model() {
         ${GPU_FLAG} \
         ${EXTRA_NET_ARGS}"
 
-    echo "Comando: ${CMD}"
+    echo "Command: ${CMD}"
     if [ "${DRY_RUN}" = "1" ]; then
-        echo "[DRY-RUN] Nessun comando eseguito."
+        echo "[DRY-RUN] No command executed."
         return 0
     fi
 
@@ -111,7 +111,7 @@ run_single_model() {
     local DURATION=$(($(date +%s) - START_T))
 
     if [ ${EXIT_CODE} -eq 0 ]; then
-        echo "[SUCCESS] Training ${NET_NAME} completato in $((DURATION / 60))m $((DURATION % 60))s."
+        echo "[SUCCESS] Training ${NET_NAME} completed in $((DURATION / 60))m $((DURATION % 60))s."
         echo "TRAINING_TIME_S=${DURATION}" >> "${LOG_FILE}"  # parsed by Notebook 02 (Table 1, Training Time)
 
         # Copy best validation checkpoint to results/models/{NET_NAME}/best_model.pth
@@ -121,18 +121,18 @@ run_single_model() {
             if [ -n "${LATEST_CKPT}" ] && [ -f "${LATEST_CKPT}" ]; then
                 mkdir -p "${MODELS_DIR}/${NET_NAME}"
                 cp -f "${LATEST_CKPT}" "${MODELS_DIR}/${NET_NAME}/best_model.pth"
-                echo "[OK] Checkpoint salvato come: ${MODELS_DIR}/${NET_NAME}/best_model.pth"
+                echo "[OK] Checkpoint saved as: ${MODELS_DIR}/${NET_NAME}/best_model.pth"
             fi
         fi
     else
-        echo "[ERRORE] Training ${NET_NAME} fallito con codice ${EXIT_CODE}."
+        echo "[ERROR] Training ${NET_NAME} failed with exit code ${EXIT_CODE}."
         exit ${EXIT_CODE}
     fi
 }
 
 echo "======================================================================"
 echo " BATCH JOB TRAINING PIPELINE - XAI FOR IoMT"
-echo " Target: ${TARGET_MODEL} | GPU: ${USE_GPU} | Epoche: ${NEPOCHS}"
+echo " Target: ${TARGET_MODEL} | GPU: ${USE_GPU} | Epochs: ${NEPOCHS}"
 echo "======================================================================"
 
 # Learning rate warm-up enabled for Transformer models only (AdamW)
@@ -158,13 +158,13 @@ case "${TARGET_MODEL,,}" in
             "--nlayers 1 --nheads 4 --d-model 128 --dim-feedforward 512 ${TRANSFORMER_WARMUP}"
         ;;
     *)
-        echo "[ERRORE] Modello non riconosciuto: ${TARGET_MODEL}. Scegliere tra: lopez17, transformer, meddefender, all."
+        echo "[ERROR] Unrecognized model: ${TARGET_MODEL}. Choose from: lopez17, transformer, meddefender, all."
         exit 1
         ;;
 esac
 
 echo ""
 echo "======================================================================"
-echo " BATCH JOB COMPLETATO! Tutti i modelli sono pronti in: ${MODELS_DIR}"
-echo " Ora puoi aprire notebooks/02_train_benchmark.ipynb per visualizzare metriche e matrici."
+echo " BATCH JOB COMPLETED! All models are ready in: ${MODELS_DIR}"
+echo " Open notebooks/02_train_benchmark.ipynb to inspect metrics and confusion matrices."
 echo "======================================================================"

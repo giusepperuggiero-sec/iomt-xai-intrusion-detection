@@ -74,13 +74,13 @@ def get_backbone(network_name, num_pkts, num_fields, num_classes, nlayers, nhead
             dim_feedforward=dim_feedforward,
         )
     else:
-        raise ValueError(f"Architettura non riconosciuta: {network_name}")
+        raise ValueError(f"Unrecognized architecture: {network_name}")
 
 
 def load_model_for_inference(network_name, args):
     """Load a trained model via load_checkpoint; --no-checkpoint profiles the untrained architecture only."""
     if not args.load_checkpoint:
-        print(f"[INFO] Opzione --no-checkpoint attiva: uso architettura con pesi inizializzati.")
+        print("[INFO] --no-checkpoint active: profiling untrained architecture with random initial weights.")
         backbone = get_backbone(
             network_name=network_name,
             num_pkts=args.num_pkts,
@@ -144,21 +144,21 @@ def profile_network(network_name, args):
     dummy_input = torch.randn(1, 1, args.num_pkts, args.num_fields)
 
     print("======================================================================")
-    print(f" PROFILING INFERENZA CPU ({args.threads} core/thread): {network_name}")
+    print(f" CPU INFERENCE PROFILING ({args.threads} core/thread): {network_name}")
     print(f" Config:     T={args.num_pkts}, fields={args.num_fields}, classes={args.num_classes}, N={args.nlayers}, h={args.nheads}")
     print(f" Checkpoint: {ckpt_info}")
-    print(f" Parametri:  {total_params:,} ({size_mb:.2f} MB float32)")
+    print(f" Params:     {total_params:,} ({size_mb:.2f} MB float32)")
     print("======================================================================")
 
     res = benchmark_latency(model, dummy_input, warmup=args.warmup, repetitions=args.repetitions)
 
-    print(f" Latenza Mediana: {res['median_ms']:.2f} ms")
-    print(f" Media ± DevStd:  {res['mean_ms']:.2f} ± {res['std_ms']:.2f} ms")
-    print(f" Percentile 90:   {res['p90_ms']:.2f} ms")
-    print(f" Percentile 95:   {res['p95_ms']:.2f} ms")
-    print(f" Percentile 99:   {res['p99_ms']:.2f} ms")
+    print(f" Median Latency:  {res['median_ms']:.2f} ms")
+    print(f" Mean ± StdDev:   {res['mean_ms']:.2f} ± {res['std_ms']:.2f} ms")
+    print(f" 90th Percentile: {res['p90_ms']:.2f} ms")
+    print(f" 95th Percentile: {res['p95_ms']:.2f} ms")
+    print(f" 99th Percentile: {res['p99_ms']:.2f} ms")
     print(f" Min / Max:       {res['min_ms']:.2f} ms / {res['max_ms']:.2f} ms")
-    print(f" Throughput:      {res['throughput_fps']:.1f} flussi/sec")
+    print(f" Throughput:      {res['throughput_fps']:.1f} flows/sec")
     print("======================================================================")
 
     return {
@@ -177,23 +177,23 @@ def profile_network(network_name, args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Profiling inferenza CPU edge IoMT")
+    parser = argparse.ArgumentParser(description="Edge IoMT single-thread CPU inference profiling")
     parser.add_argument("--network", type=str, default="BiflowTransformer",
                         choices=["BiflowTransformer", "Lopez17CNN", "MedDefenderTransformer"])
-    parser.add_argument("--all", action="store_true", help="Esegue il profiling per tutti e 3 i modelli")
+    parser.add_argument("--all", action="store_true", help="Run profiling across all 3 models")
     parser.add_argument("--no-checkpoint", dest="load_checkpoint", action="store_false",
-                        help="Non carica checkpoint, profila solo l'architettura")
+                        help="Skip checkpoint loading and profile only the initialized architecture")
     parser.set_defaults(load_checkpoint=True)
-    parser.add_argument("--num-pkts", type=int, default=10, help="Orizzonte temporale T (default 10)")
+    parser.add_argument("--num-pkts", type=int, default=10, help="Packet horizon T (default 10)")
     parser.add_argument("--num-fields", type=int, default=6)
-    parser.add_argument("--num-classes", type=int, default=13, help="13 = task multiclasse CIC-IoMT")
+    parser.add_argument("--num-classes", type=int, default=13, help="13 = CICIoMT2024 multiclass split")
     parser.add_argument("--nlayers", type=int, default=2)
     parser.add_argument("--nheads", type=int, default=4)
     parser.add_argument("--d-model", type=int, default=128)
     parser.add_argument("--dim-feedforward", type=int, default=512)
     parser.add_argument("--warmup", type=int, default=100)
     parser.add_argument("--repetitions", type=int, default=500)
-    parser.add_argument("--threads", type=int, default=1, help="Numero thread CPU (default 1 per edge)")
+    parser.add_argument("--threads", type=int, default=1, help="CPU thread count (default 1 for edge)")
     args = parser.parse_args()
 
     # Enforce single-thread CPU execution to profile the edge deployment constraint
@@ -209,7 +209,7 @@ def main():
     df = pd.DataFrame(records)
     csv_out = _METRICS_DIR / "edge_latency_profiling.csv"
     df.to_csv(csv_out, index=False)
-    print(f"\n[OK] Risultati salvati in: {csv_out}")
+    print(f"\n[OK] Results saved to: {csv_out}")
 
 
 if __name__ == "__main__":

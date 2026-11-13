@@ -1,6 +1,7 @@
 import os
-import torch
 import random
+import warnings
+import torch
 import numpy as np
 
 cudnn_deterministic = True
@@ -11,6 +12,11 @@ def safe_torch_load(path, map_location='cpu'):
     try:
         return torch.load(path, map_location=map_location, weights_only=True)
     except TypeError:
+        warnings.warn(
+            "Installed PyTorch does not support weights_only=True; falling back to legacy torch.load.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
         return torch.load(path, map_location=map_location)
 
 

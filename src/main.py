@@ -4,7 +4,10 @@ import os
 import time
 from functools import reduce
 
-import git
+try:
+    import git
+except ImportError:
+    git = None
 import numpy as np
 import pandas as pd
 import torch
@@ -339,8 +342,10 @@ def main(argv=None):
         eval_on_train=args.eval_on_train, predict_tasks=args.predict_tasks, statistical=False, is_ml=is_ml,
         optimizer_type=opt_choice)
 
-    # Args -- Store current commit hash
+    # Args -- Store current commit hash (gracefully skipped if GitPython is unavailable)
     try:
+        if git is None:
+            raise RuntimeError("GitPython not installed")
         repo = git.Repo(search_parent_directories=True)
         repo_sha1 = repo.head.commit.hexsha
         setattr(args, 'git_sha1', repo_sha1)

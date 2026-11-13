@@ -64,8 +64,8 @@ def _get_network_class(network_name: str):
     }
     if network_name not in mapping:
         raise ValueError(
-            f"Architettura '{network_name}' non riconosciuta. "
-            f"Disponibili: {list(mapping.keys())}"
+            f"Unrecognized architecture '{network_name}'. "
+            f"Available: {list(mapping.keys())}"
         )
     return mapping[network_name]
 
@@ -85,7 +85,7 @@ def list_experiments(results_dir: str = "../results") -> list:
     """
     results_path = Path(results_dir)
     if not results_path.exists():
-        print(f"[WARN] La cartella {results_dir} non esiste ancora.")
+        print(f"[WARN] Directory '{results_dir}' does not exist yet.")
         return []
 
     # Support both direct results directory and an optional 'run/' subfolder
@@ -100,13 +100,13 @@ def list_experiments(results_dir: str = "../results") -> list:
                 experiments.append(d.name)
     experiments = sorted(set(experiments))
 
-    print(f"[model_loader] {len(experiments)} esperimenti trovati in '{results_dir}':")
+    print(f"[model_loader] {len(experiments)} experiments found in '{results_dir}':")
     for exp in experiments:
         # Look up checkpoints in the matching directory
         for sdir in search_dirs:
             if (sdir / exp).is_dir():
                 ckpt_found = list((sdir / exp / "models").glob("*.ckpt"))
-                status = f"✓ {len(ckpt_found)} checkpoint" if ckpt_found else "✗ nessun checkpoint"
+                status = f"✓ {len(ckpt_found)} checkpoint" if ckpt_found else "✗ no checkpoint"
                 print(f"  {exp:60s} [{status}]")
                 break
     return experiments
@@ -133,8 +133,8 @@ def get_exp_config(exp_name: str, results_dir: str = "../results") -> Box:
 
     if not args_files:
         raise FileNotFoundError(
-            f"Nessun file args-*.txt trovato in {exp_path}. "
-            "Il training è stato completato?"
+            f"No args-*.txt file found in {exp_path}. "
+            "Has training completed?"
         )
 
     # Pick the latest run in case of restarts
@@ -214,12 +214,12 @@ def load_checkpoint(
         if len(matches) == 1:
             exp_path = matches[0]
             exp_name = exp_path.name
-            print(f"[model_loader] Esperimento risolto in '{exp_name}'")
+            print(f"[model_loader] Resolved experiment directory to '{exp_name}'")
         else:
             raise FileNotFoundError(
-                f"Esperimento '{exp_name}' non trovato in '{results_dir}'"
-                + (f" ({len(matches)} corrispondenze ambigue: {[m.name for m in matches]})" if matches else "")
-                + f". Esperimenti disponibili:\n{list_experiments(results_dir)}"
+                f"Experiment '{exp_name}' not found in '{results_dir}'"
+                + (f" ({len(matches)} ambiguous matches: {[m.name for m in matches]})" if matches else "")
+                + f". Available experiments:\n{list_experiments(results_dir)}"
             )
 
     # Load experiment configuration
@@ -250,12 +250,12 @@ def load_checkpoint(
 
     if not ckpt_files:
         raise FileNotFoundError(
-            f"Nessun checkpoint trovato in {models_dir}. "
-            "Verificare che il training sia completato con --save-models."
+            f"No checkpoint found in {models_dir}. "
+            "Verify that training completed with --save-models."
         )
 
     ckpt_path = ckpt_files[-1]  # newest checkpoint, consistent with get_exp_config
-    print(f"[model_loader] Caricamento checkpoint: {ckpt_path}")
+    print(f"[model_loader] Loading checkpoint: {ckpt_path}")
 
     # Instantiate backbone network
     NetClass = _get_network_class(net_name)
@@ -323,9 +323,9 @@ def load_checkpoint(
 
     num_params = sum(p.numel() for p in model.parameters())
     print(
-        f"[model_loader] [OK] Modello '{net_name}' caricato con successo "
-        f"({num_params:,} parametri, fields={_num_fields}, strict=True) "
-        f"su device='{device}'"
+        f"[model_loader] [OK] Model '{net_name}' loaded successfully "
+        f"({num_params:,} params, fields={_num_fields}, strict=True) "
+        f"on device='{device}'"
     )
     return model, args
 
@@ -379,7 +379,7 @@ def get_xai_subset(
     y = torch.tensor(np.asarray(y_list)[perm], dtype=torch.long)
 
     print(
-        f"[model_loader] Subset XAI: {len(y)} campioni, "
-        f"{len(classes)} classi, ~{n_per_class} per classe"
+        f"[model_loader] XAI subset: {len(y)} samples, "
+        f"{len(classes)} classes, ~{n_per_class} per class"
     )
     return X, y

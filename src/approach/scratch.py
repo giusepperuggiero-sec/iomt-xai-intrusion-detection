@@ -132,7 +132,7 @@ class Appr(Inc_Learning_Appr):
             labels = torch.as_tensor(np.asarray(trn_loader.dataset.labels), dtype=torch.long)
             n_cls = sum(h.out_features for h in self.model.heads)
             self.class_counts = torch.bincount(labels, minlength=n_cls).clamp(min=1).float().to(self.device)
-            print('[focal] conteggi di classe sul training set:', self.class_counts.tolist())
+            print('[focal] training set class counts:', self.class_counts.tolist())
 
         # continue pre-train as usual
         super().pre_train_process(t, trn_loader)
